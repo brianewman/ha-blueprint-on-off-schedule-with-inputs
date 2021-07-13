@@ -28,7 +28,7 @@ blueprint:
       default: '00:00'
       selector:
         time:
-   custom_trigger_event:
+    custom_trigger_event:
       name: Custom Trigger Event
       description: (Optional) A custom event which can trigger the state check (eg. a powercut event reported by external integrations).
       default: ''
