@@ -42,8 +42,8 @@ blueprint:
 # Automation schema
 variables:
   # convert input tags to variables, to be used in templates
-  off_time: !input off_time
-  on_time: !input on_time
+  off_time: !input 'off_time'
+  on_time: !input 'on_time'
   trigger_at_homeassistant_startup: !input trigger_at_homeassistant_startup
   # time format used by strptime
   time_fmt: '%H:%M:%S'
