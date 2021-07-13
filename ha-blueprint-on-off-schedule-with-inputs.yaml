@@ -45,9 +45,11 @@ variables:
   off_time: !input off_time
   on_time: !input on_time
   trigger_at_homeassistant_startup: !input trigger_at_homeassistant_startup
+  # time format used by strptime
+  time_fmt: '%H:%M:%S'
   # first define whether on_time or off_time is the first event to occur during a specific day
-  first_event: '{{ on_time if states.input_datetime.fountain_time_on.attributes.timestamp < states.input_datetime.fountain_time_off.attributes.timestamp else off_time }}'
-  second_event: '{{ on_time if states.input_datetime.fountain_time_on.attributes.timestamp >= states.input_datetime.fountain_time_off.attributes.timestamp else off_time }}'
+  first_event: '{{ on_time if state.on_time.attributes.timestamp < state.off_time.attributes.timestamp else off_time }}'
+  second_event: '{{ on_time if state.on_time.attributes.timestamp >= state.off_time.attributes.timestamp else off_time }}'
 mode: single
 max_exceeded: silent
 
