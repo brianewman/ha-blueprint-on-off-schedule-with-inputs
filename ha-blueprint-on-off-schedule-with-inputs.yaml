@@ -6,7 +6,7 @@ blueprint:
   domain: automation
   input:
     enable_schedule:
-      name: Enable Schedule
+      name: Enable light
       description: Enable the actions of the automation to set the ligtht's state. Select an input_boolean entity for this input.
       selector: 
         entity:
@@ -18,16 +18,16 @@ blueprint:
         target:
     on_time:
       name: On Time
-      description: Time when the target should be placed in the on state.
-      default: '00:00'
+      description: Time when the target should be placed in the on state.  Select an input_datetime for this input.
       selector:
-        time:
+        entity:
+          domain: input_datetime
     off_time:
       name: Off Time
-      description: Time when the target should be placed in the off state.
-      default: '00:00'
+      description: Time when the target should be placed in the off state.  Select an input_datetime for this input.
       selector:
-        time:
+        entity:
+          domain: input_datetime
     custom_trigger_event:
       name: Custom Trigger Event
       description: (Optional) A custom event which can trigger the state check (eg. a powercut event reported by external integrations).
@@ -45,32 +45,36 @@ variables:
   off_time: !input off_time
   on_time: !input on_time
   trigger_at_homeassistant_startup: !input trigger_at_homeassistant_startup
-  # time format used by strptime
-  time_fmt: '%H:%M:%S'
   # first define whether on_time or off_time is the first event to occur during a specific day
-  first_event: '{{ on_time if strptime(on_time,time_fmt).time() < strptime(off_time,time_fmt).time() else off_time }}'
-  second_event: '{{ on_time if strptime(on_time,time_fmt).time() >= strptime(off_time,time_fmt).time() else off_time }}'
+  first_event: '{{ on_time if states.on_time.attributes.timestamp < states.off_time.attributes.timestamp else off_time }}'
+  second_event: '{{ on_time if states.on_time.attributes.timestamp >= states.off_time.attributes.timestamp else off_time }}'
 mode: single
 max_exceeded: silent
 
 # trigger at specified time, home assistant startup or when the custom event is fired
 trigger:
   - platform: time
-    at: input_datetime.fountain_time_on
+    at:
+      - !input on_time
+      - !input off_time
+  - platform: homeassistant
+    event: start
+  - platform: event
+    event_type: !input custom_trigger_event
 # if triggered by the homeassistant platform check if the automation should be run, as specified by the user
 # if triggered by something else, just continue
 condition:
+  - condition: template
+    value_template: '{{ trigger.platform!="homeassistant" or trigger_at_homeassistant_startup }}'
   - condition: state
     entity_id: !input enable_schedule
     state: 'on'
-  - condition: template
-    value_template: '{{ trigger.platform!="homeassistant" or trigger_at_homeassistant_startup }}'
 action:
   - choose:
       # if current time is in the range first_event...second_event the target must be in the first_event state
       - conditions:
           - condition: template
-            value_template: '{{ now().time() >= strptime(first_event,time_fmt).time() and now().time() < strptime(second_event,time_fmt).time() }}'
+            value_template: '{{ now().time() >= states.first_event.attributes.timestamp and now().time() < states.second_eventattributes.timestamp }}'
         sequence:
           - service: 'homeassistant.{{ "turn_on" if first_event == on_time else "turn_off"}}'
             target: !input automation_target
