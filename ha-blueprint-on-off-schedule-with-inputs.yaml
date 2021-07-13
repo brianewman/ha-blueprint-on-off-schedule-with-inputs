@@ -72,12 +72,12 @@ action:
       # if current time is in the range first_event...second_event the target must be in the first_event state
       - conditions:
           - condition: template
-            value_template: '{{ now().time() >= strptime(first_event,time_fmt).time() and now().time() < strptime(second_event,time_fmt).time() }}'
+            value_template: '{{ now().time() >= states.on_time.state and now().time() < states.off_time.state }}'
         sequence:
-          - service: 'homeassistant.{{ "turn_on" if first_event == on_time else "turn_off"}}'
+          - service: 'homeassistant.{{ "turn_off" if backward_time else "turn_on"}}'
             target: !input automation_target
     # else current time is in the range second_event...23:59:59 or 00:00:00...first_event
     # the target must be in the second_event state
     default:
-      - service: 'homeassistant.{{ "turn_on" if second_event == on_time else "turn_off"}}'
+      - service: 'homeassistant.{{ "turn_on" if backward_time else "turn_off"}}'
         target: !input automation_target
