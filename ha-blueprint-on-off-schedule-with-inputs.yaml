@@ -18,16 +18,16 @@ blueprint:
         target:
     on_time:
       name: On Time
-      description: Time when the target should be placed in the on state.  Select an input_datetime for this input.
+      description: Time when the target should be placed in the on state.
+      default: '00:00'
       selector:
-        entity:
-          domain: input_datetime
+        time:
     off_time:
       name: Off Time
-      description: Time when the target should be placed in the off state.  Select an input_datetime for this input.
+      description: Time when the target should be placed in the off state.
+      default: '00:00'
       selector:
-        entity:
-          domain: input_datetime
+        time:
     custom_trigger_event:
       name: Custom Trigger Event
       description: (Optional) A custom event which can trigger the state check (eg. a powercut event reported by external integrations).
