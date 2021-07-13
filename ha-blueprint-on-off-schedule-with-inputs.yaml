@@ -44,8 +44,8 @@ variables:
   # convert input tags to variables, to be used in templates
   off_helper: !input off_time
   on_helper: !input on_time
-  off_time: '{{ states.off_helper.attributes.timestamp | int }}'
-  on_time: '{{ states.on_helper.attributes.timestamp | int }}'
+  off_time: '{{ states.off_helper.attributes.timestamp }}'
+  on_time: '{{ states.on_helper.attributes.timestamp }}'
   trigger_at_homeassistant_startup: !input trigger_at_homeassistant_startup
   # first define whether on_time or off_time is the first event to occur during a specific day
   first_event: '{{ on_time if on_time < off_time else off_time }}'
