@@ -48,8 +48,9 @@ variables:
   # time format used by strptime
   time_fmt: '%H:%M:%S'
   # first define whether on_time or off_time is the first event to occur during a specific day
-  first_event: '{{ on_time if state.on_time.attributes.timestamp < state.off_time.attributes.timestamp else off_time }}'
-  second_event: '{{ on_time if state.on_time.attributes.timestamp >= state.off_time.attributes.timestamp else off_time }}'
+  #first_event: '{{ on_time if strptime(on_time,time_fmt).time() < strptime(off_time,time_fmt).time() else off_time }}'
+  #second_event: '{{ on_time if strptime(on_time,time_fmt).time() >= strptime(off_time,time_fmt).time() else off_time }}'
+  backward_time: '{{ states.on_time.state >= states.off_time.state }}
 mode: single
 max_exceeded: silent
 
@@ -66,17 +67,17 @@ trigger:
 # if triggered by the homeassistant platform check if the automation should be run, as specified by the user
 # if triggered by something else, just continue
 condition:
-  - condition: template
-    value_template: '{{ trigger.platform!="homeassistant" or trigger_at_homeassistant_startup }}'
   - condition: state
     entity_id: !input enable_schedule
     state: 'on'
+  - condition: template
+    value_template: '{{ trigger.platform!="homeassistant" or trigger_at_homeassistant_startup }}'
 action:
   - choose:
       # if current time is in the range first_event...second_event the target must be in the first_event state
       - conditions:
           - condition: template
-            value_template: '{{ (now().time() >= states.on_time.state and now().time() < states.off_time.state) if states.on_time.state < states.off_time.state else (now().time() >= states.off_time.state and now().time() < states.on_time.state) }}'
+            value_template: '{{ now().time() >= strptime(first_event,time_fmt).time() and now().time() < strptime(second_event,time_fmt).time() }}'
         sequence:
           - service: 'homeassistant.{{ "turn_on" if first_event == on_time else "turn_off"}}'
             target: !input automation_target
