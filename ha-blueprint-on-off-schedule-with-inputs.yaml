@@ -6,7 +6,7 @@ blueprint:
   domain: automation
   input:
     enable_schedule:
-      name: Enable light
+      name: Enable schedule helper
       description: Enable the actions of the automation to set the ligtht's state. Select an input_boolean entity for this input.
       selector: 
         entity:
@@ -17,13 +17,13 @@ blueprint:
       selector:
         target:
     on_time:
-      name: On Time
+      name: On Time helper
       description: Time when the target should be placed in the on state.  Select an input_datetime for this input.
       selector:
         entity:
           domain: input_datetime
     off_time:
-      name: Off Time
+      name: Off Time helper
       description: Time when the target should be placed in the off state.  Select an input_datetime for this input.
       selector:
         entity:
@@ -42,12 +42,14 @@ blueprint:
 # Automation schema
 variables:
   # convert input tags to variables, to be used in templates
-  off_time: !input off_time
-  on_time: !input on_time
+  off_helper: !input off_time
+  on_helper: !input on_time
+  off_time: {{ states.off_helper.attributes.timestamp }}
+  on_time: {{ states.on_helper.attributes.timestamp }}
   trigger_at_homeassistant_startup: !input trigger_at_homeassistant_startup
   # first define whether on_time or off_time is the first event to occur during a specific day
-  first_event: '{{ on_time if states.on_time.attributes.timestamp < states.off_time.attributes.timestamp else off_time }}'
-  second_event: '{{ on_time if states.on_time.attributes.timestamp >= states.off_time.attributes.timestamp else off_time }}'
+  first_event: '{{ on_time if on_time < off_time else off_time }}'
+  second_event: '{{ on_time if on_time >= off_time else off_time }}'
 mode: single
 max_exceeded: silent
 
@@ -74,7 +76,7 @@ action:
       # if current time is in the range first_event...second_event the target must be in the first_event state
       - conditions:
           - condition: template
-            value_template: '{{ now().time() >= states.first_event.attributes.timestamp and now().time() < states.second_eventattributes.timestamp }}'
+            value_template: '{{ now().time() >= first_event and now().time() < second_event }}'
         sequence:
           - service: 'homeassistant.{{ "turn_on" if first_event == on_time else "turn_off"}}'
             target: !input automation_target
