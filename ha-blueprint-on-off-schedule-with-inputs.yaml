@@ -68,6 +68,9 @@ trigger:
 condition:
   - condition: template
     value_template: '{{ trigger.platform!="homeassistant" or trigger_at_homeassistant_startup }}'
+  - condition: state
+    entity_id: !input enable_schedule
+    state: 'on'
 action:
   - choose:
       # if current time is in the range first_event...second_event the target must be in the first_event state
