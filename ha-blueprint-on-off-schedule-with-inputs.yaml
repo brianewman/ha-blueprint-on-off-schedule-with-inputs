@@ -42,14 +42,14 @@ blueprint:
 # Automation schema
 variables:
   # convert input tags to variables, to be used in templates
-  off_helper: !input off_time
-  on_helper: !input on_time
-  off_time: '{{ states.off_helper.attributes.timestamp }}'
-  on_time: '{{ states.on_helper.attributes.timestamp }}'
+  off_time: !input off_time
+  on_time: !input on_time
+  off_time: '{{ states.off_time.attributes.timestamp }}'
+  on_time: '{{ states.on_time.attributes.timestamp }}'
   trigger_at_homeassistant_startup: !input trigger_at_homeassistant_startup
   # first define whether on_time or off_time is the first event to occur during a specific day
-  first_event: '{{ on_time if on_time < off_time else off_time }}'
-  second_event: '{{ on_time if on_time >= off_time else off_time }}'
+  first_event: '{{ on_time if states.on_time.attributes.timestamp < states.off_time.attributes.timestamp else off_time }}'
+  second_event: '{{ on_time if states.on_time.attributes.timestamp >= states.off_time.attributes.timestamp else off_time }}'
 mode: single
 max_exceeded: silent
 
@@ -76,7 +76,7 @@ action:
       # if current time is in the range first_event...second_event the target must be in the first_event state
       - conditions:
           - condition: template
-            value_template: '{{ now().time() >= first_event and now().time() < second_event }}'
+            value_template: '{{ now().time() | string >= states.first_event.state and now().time() | string < states.second_event.state }}'
         sequence:
           - service: 'homeassistant.{{ "turn_on" if first_event == on_time else "turn_off"}}'
             target: !input automation_target
