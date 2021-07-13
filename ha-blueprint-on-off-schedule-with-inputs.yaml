@@ -5,6 +5,12 @@ blueprint:
   source_url: https://github.com/brianewman/ha-blueprint-on-off-schedule-with-inputs/blob/main/ha-blueprint-on-off-schedule-with-inputs.yaml
   domain: automation
   input:
+    enable_schedule:
+      name: Enable Schedule
+      description: Enable the actions of the automation to set the ligtht's state. Select an input_boolean entity for this input.
+      selector: 
+        entity:
+          domain: input_boolean
     automation_target:
       name: Automation target
       description: The target which the automation will turn on and off based on the provided schedule.
@@ -60,6 +66,9 @@ trigger:
 # if triggered by the homeassistant platform check if the automation should be run, as specified by the user
 # if triggered by something else, just continue
 condition:
+  - condition: state
+    entity_id: !input enable_schedule
+    state: 'on'
   - condition: template
     value_template: '{{ trigger.platform!="homeassistant" or trigger_at_homeassistant_startup }}'
 action:
