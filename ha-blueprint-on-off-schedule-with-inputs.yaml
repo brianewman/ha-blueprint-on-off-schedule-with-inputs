@@ -5,12 +5,6 @@ blueprint:
   source_url: https://github.com/brianewman/ha-blueprint-on-off-schedule-with-inputs/blob/main/ha-blueprint-on-off-schedule-with-inputs.yaml
   domain: automation
   input:
-    enable_schedule:
-      name: Enable light
-      description: Enable the actions of the automation to set the ligtht's state. Select an input_boolean entity for this input.
-      selector: 
-        entity:
-          domain: input_boolean
     automation_target:
       name: Automation target
       description: The target which the automation will turn on and off based on the provided schedule.
@@ -18,16 +12,16 @@ blueprint:
         target:
     on_time:
       name: On Time
-      description: Time when the target should be placed in the on state.  Select an input_datetime for this input.
+      description: Time when the target should be placed in the on state.
+      default: '00:00'
       selector:
-        entity:
-          domain: input_datetime
+        time:
     off_time:
       name: Off Time
-      description: Time when the target should be placed in the off state.  Select an input_datetime for this input.
+      description: Time when the target should be placed in the off state.
+      default: '00:00'
       selector:
-        entity:
-          domain: input_datetime
+        time:
     custom_trigger_event:
       name: Custom Trigger Event
       description: (Optional) A custom event which can trigger the state check (eg. a powercut event reported by external integrations).
@@ -68,9 +62,6 @@ trigger:
 condition:
   - condition: template
     value_template: '{{ trigger.platform!="homeassistant" or trigger_at_homeassistant_startup }}'
-  - condition: state
-    entity_id: !input enable_schedule
-    state: 'on'
 action:
   - choose:
       # if current time is in the range first_event...second_event the target must be in the first_event state
