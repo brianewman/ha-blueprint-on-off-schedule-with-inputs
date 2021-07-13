@@ -1,5 +1,5 @@
 # Blueprint metadata
-blueprint:
+blueprint: 
   name: On-Off schedule with state persistence using input_datetime
   description: A simple on-off schedule, with the addition of state persistence across disruptive events, making sure the target device is always in the expected state.  Enable and set schedule using inputs in the front end.  (Based on "On-Off schedule with state persistence" by Matteo Agnoletto)
   source_url: https://github.com/brianewman/ha-blueprint-on-off-schedule-with-inputs/blob/main/ha-blueprint-on-off-schedule-with-inputs.yaml
