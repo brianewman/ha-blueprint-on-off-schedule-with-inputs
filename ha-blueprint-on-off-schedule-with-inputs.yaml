@@ -77,7 +77,7 @@ action:
             {% set ctime = (now().timestamp() + 1) | int %}
             {% set ontime = as_timestamp(strptime(cdate + states(on_time), '%Y-%m-%d %H:%M:%S')) | int %}
             {% set offtime = as_timestamp(strptime(cdate + states(off_time), '%Y-%m-%d %H:%M:%S')) | int %}
-			{% set reverse_time = (ontime >= offtime) %}
+            {% set reverse_time = (ontime >= offtime) %}
             {{ (offtime < ctime < ontime) if reverse_time else (ontime < ctime < offtime) }}
         sequence:
           - service: 'homeassistant.{{ "turn_off" if reverse_time else "turn_on"}}'
