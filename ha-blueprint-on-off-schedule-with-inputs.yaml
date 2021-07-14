@@ -59,8 +59,7 @@ trigger:
     event: start
   - platform: event
     event_type: !input custom_trigger_event
-# if triggered by the homeassistant platform check if the automation should be run, as specified by the user
-# if triggered by something else, just continue
+
 condition:
   - condition: state
     entity_id: !input enable_schedule
@@ -69,7 +68,7 @@ condition:
     value_template: '{{ trigger.platform!="homeassistant" or trigger_at_homeassistant_startup }}'
 action:
   - choose:
-      # if current time is in the range first_event...second_event the target must be in the first_event state
+      # check if we should be turning the target on
       - conditions:
         - condition: template
           value_template: |
@@ -82,8 +81,7 @@ action:
         sequence:
           - service: 'homeassistant.{{ "turn_on" }}'
             target: !input automation_target
-    # else current time is in the range second_event...23:59:59 or 00:00:00...first_event
-    # the target must be in the second_event state
+    # otherwise, we should turn it off
     default:
       - service: 'homeassistant.{{ "turn_off" }}'
         target: !input automation_target
