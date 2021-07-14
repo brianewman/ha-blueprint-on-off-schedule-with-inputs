@@ -75,8 +75,8 @@ action:
           value_template: |
             {% set cdate = now().strftime("%Y-%m-%d ") %}
             {% set ctime = (now().timestamp() + 1) | int %}
-            {% set ontime = as_timestamp(strptime(cdate + states(time_on), '%Y-%m-%d %H:%M:%S')) | int %}
-            {% set offtime = as_timestamp(strptime(cdate + offtime, '%Y-%m-%d %H:%M:%S')) | int %}
+            {% set ontime = as_timestamp(strptime(cdate + states(on_time), '%Y-%m-%d %H:%M:%S')) | int %}
+            {% set offtime = as_timestamp(strptime(cdate + states(off_time), '%Y-%m-%d %H:%M:%S')) | int %}
             {{ (offtime < ctime < ontime) if backward_time else (ontime < ctime < offtime) }}
         sequence:
           - service: 'homeassistant.{{ "turn_off" if backward_time else "turn_on"}}'
