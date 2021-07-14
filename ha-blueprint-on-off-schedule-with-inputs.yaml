@@ -78,12 +78,12 @@ action:
             {% set ontime = as_timestamp(strptime(cdate + states(on_time), '%Y-%m-%d %H:%M:%S')) | int %}
             {% set offtime = as_timestamp(strptime(cdate + states(off_time), '%Y-%m-%d %H:%M:%S')) | int %}
             {% set reverse_time = (ontime >= offtime) %}
-            {{ (offtime < ctime < ontime) if reverse_time else (ontime < ctime < offtime) }}
+            {{ (ontime < ctime < offtime) or (ctime < offtime < ontime) or (offtime < ontime < ctime) }}
         sequence:
-          - service: 'homeassistant.{{ "turn_off" if reverse_time else "turn_on"}}'
+          - service: 'homeassistant.{{ "turn_on" }}'
             target: !input automation_target
     # else current time is in the range second_event...23:59:59 or 00:00:00...first_event
     # the target must be in the second_event state
     default:
-      - service: 'homeassistant.{{ "turn_on" if reverse_time else "turn_off"}}'
+      - service: 'homeassistant.{{ "turn_off" }}'
         target: !input automation_target
