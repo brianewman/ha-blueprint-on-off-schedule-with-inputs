@@ -45,7 +45,7 @@ variables:
   off_time: !input off_time
   on_time: !input on_time
   trigger_at_homeassistant_startup: !input trigger_at_homeassistant_startup
-  reverse_time: {{ false }}
+  reverse_time: '{{ false }}'
 mode: single
 max_exceeded: silent
 
